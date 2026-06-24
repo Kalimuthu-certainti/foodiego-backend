@@ -1,0 +1,33 @@
+# Continuous Integration for the FoodieGo backend.
+#
+# Why: every push and every PR into `main` is automatically installed, linted,
+# and tested — so broken code is caught before it can be merged or deployed.
+# Make this check "required" in the repo's branch-protection rules to gate merges.
+name: CI
+
+# Run on pushes to main (post-merge sanity) and on PRs targeting main (the gate).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # Pull the repo contents into the runner.
+      - uses: actions/checkout@v4
+
+      # Install Node 20 LTS and cache npm downloads for faster runs.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      # Clean, reproducible install from package-lock.json.
+      - run: npm ci
+
+      # Static checks, then the full test suite (must stay green).
+      - run: npm run lint
+      - run: npm test
