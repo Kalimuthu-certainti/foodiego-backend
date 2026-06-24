@@ -1,0 +1,41 @@
+# Render Blueprint — defines the FoodieGo backend as a free web service.
+#
+# Deploy: Render Dashboard → New → Blueprint → connect the foodiego-backend repo →
+# Render reads this file → set the three secret env vars (the `sync: false` ones) →
+# Apply. After that, every push to `main` auto-deploys.
+#
+# Render injects PORT automatically and the app already reads process.env.PORT.
+services:
+  - type: web
+    name: foodiego-backend
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SEED_ON_BOOT
+        value: "true" # load demo fixtures on boot (in-memory store)
+      - key: ACCESS_TOKEN_TTL
+        value: 15m
+      - key: REFRESH_TOKEN_TTL
+        value: 7d
+      - key: REQUIRE_ADMIN_APPROVAL
+        value: "false"
+      - key: MSG91_SENDER
+        value: FOODGO
+      - key: LOG_LEVEL
+        value: info
+      # CORS — the GitHub Pages frontend ORIGIN (scheme + host only, no path/trailing slash).
+      - key: FRONTEND_URL
+        value: https://kalimuthu-certainti.github.io
+      # Secrets — NOT committed. Set real values in the Render dashboard.
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: JWT_REFRESH_SECRET
+        sync: false
+      - key: MSG91_API_KEY
+        sync: false
