@@ -5,6 +5,17 @@
 # Apply. After that, every push to `main` auto-deploys.
 #
 # Render injects PORT automatically and the app already reads process.env.PORT.
+#
+# This blueprint also provisions a free Postgres used ONLY by the bulk-upload
+# module (the rest of the app stays in-memory). After the first deploy, run the
+# migrations once: `npm run migrate:bulk` (Render Shell, or locally with
+# DATABASE_URL pointed at this DB).
+databases:
+  - name: foodiego-db
+    plan: free
+    databaseName: foodiego
+    user: foodiego
+
 services:
   - type: web
     name: foodiego-backend
@@ -15,6 +26,11 @@ services:
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
+      # Postgres connection for the bulk-upload module — auto-wired from the DB above.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: foodiego-db
+          property: connectionString
       - key: NODE_ENV
         value: production
       - key: SEED_ON_BOOT
