@@ -1,0 +1,7 @@
+# .github/CODEOWNERS
+# Who must review & approve changes before they can merge to main.
+# Format:  <path pattern>   <@github-username>
+# The owner must be a collaborator with Write access who accepted the invite.
+
+# foodiego-backend is backend-only, so the whole repo is owned by:
+*   @Kalimuthu-certainti
