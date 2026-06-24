@@ -3,6 +3,7 @@ const migration1 = require('./001-create-bulk-upload-jobs');
 const migration2 = require('./002-create-menu-items');
 const migration3 = require('./003-create-restaurants');
 const migration4 = require('./004-create-bulk-upload-failed-records');
+const migration5 = require('./005-create-categories');
 
 async function runMigrations() {
   try {
@@ -11,6 +12,7 @@ async function runMigrations() {
     await migration2.up();
     await migration3.up();
     await migration4.up();
+    await migration5.up();
     console.log('All migrations completed!');
     process.exit(0);
   } catch (err) {
