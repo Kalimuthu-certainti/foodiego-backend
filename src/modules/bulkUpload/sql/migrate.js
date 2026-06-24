@@ -4,6 +4,7 @@ const migration2 = require('./002-create-menu-items');
 const migration3 = require('./003-create-restaurants');
 const migration4 = require('./004-create-bulk-upload-failed-records');
 const migration5 = require('./005-create-categories');
+const migration6 = require('./006-add-menu-items-unique');
 
 async function runMigrations() {
   try {
@@ -13,6 +14,7 @@ async function runMigrations() {
     await migration3.up();
     await migration4.up();
     await migration5.up();
+    await migration6.up();
     console.log('All migrations completed!');
     process.exit(0);
   } catch (err) {
