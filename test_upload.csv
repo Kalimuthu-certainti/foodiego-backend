@@ -1,0 +1,6 @@
+item_name,category,sub_category,description,price,discount_price,tax_percentage,image_url,food_type,spice_level,calories,allergens,status,available_from,available_to,packaging_charge,display_order,is_featured,is_bestseller,is_customizable
+Paneer Butter Masala,Main Course,Paneer,Rich and creamy paneer dish,250,220,5,,Veg,Medium,350,Dairy,active,09:00,22:00,10,1,false,true,false
+Chicken Biryani,Rice,Biryani,Aromatic basmati rice with chicken,320,,5,,Non-Veg,Spicy,520,,active,09:00,22:00,15,2,true,true,false
+Masala Dosa,Breakfast,Dosa,Crispy dosa with potato filling,120,100,5,,Veg,Mild,280,,active,07:00,12:00,5,3,false,false,false
+Egg Fried Rice,Rice,Fried Rice,Wok tossed rice with eggs,180,,5,,Egg,Medium,400,,active,11:00,22:00,10,4,false,false,false
+Gulab Jamun,Desserts,Sweet,Soft milk solid dumplings in sugar syrup,80,,18,,Veg,,250,Dairy,active,09:00,22:00,0,5,false,true,false

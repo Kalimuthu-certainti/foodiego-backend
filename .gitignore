@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.example
+.env.local
+logs/*.log
+dist/
+coverage/
+src/uploads/*
+!src/uploads/.gitkeep
+src/templates/*
+!src/templates/.gitkeep
+*.db
+*.sqlite
+.DS_Store
