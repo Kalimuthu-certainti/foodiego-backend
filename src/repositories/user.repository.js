@@ -1,13 +1,14 @@
 "use strict";
 
 /**
- * User data-access over the in-memory store ONLY (no business logic).
- *
- * DB-deferred seam: every method is async (returns a Promise) so that swapping
- * the Map for a real `pg` Pool later requires no change to callers (services).
+ * User data-access. In-memory store is the source of truth; when a Postgres pool
+ * is configured, newly created users (e.g. invited staff) are also written to
+ * Postgres and loaded back on boot. Seeded demo users are NOT persisted — they're
+ * re-seeded in-memory on every boot. In tests / no-DB the pool is null (no-op).
  */
 
 const { store } = require("../config/database");
+const pool = require("../config/pgPool");
 const { makeUser } = require("../models/user.model");
 
 /**
@@ -18,6 +19,20 @@ const { makeUser } = require("../models/user.model");
 async function create(data) {
   const user = makeUser(data);
   store.users.set(user.id, user);
+
+  if (pool) {
+    try {
+      await pool.query(
+        `INSERT INTO users (id, email, password_hash, name, role, phone, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, NOW())
+         ON CONFLICT (id) DO NOTHING`,
+        [user.id, user.email, user.password_hash, user.name, user.role, user.phone],
+      );
+    } catch (err) {
+      console.error("[user.repository] persist failed:", err.message);
+    }
+  }
+
   return user;
 }
 
@@ -40,4 +55,31 @@ async function findByEmail(email) {
   return null;
 }
 
-module.exports = { create, findById, findByEmail };
+/**
+ * Boot loader: hydrate the in-memory store with persisted users, without
+ * overwriting the seeded demo fixtures (which keep their fixed ids).
+ * @returns {Promise<number>} how many rows were loaded
+ */
+async function loadAll() {
+  if (!pool) return 0;
+  const { rows } = await pool.query(
+    `SELECT id, email, password_hash, name, role, phone, created_at FROM users`,
+  );
+  let loaded = 0;
+  for (const u of rows) {
+    if (store.users.has(u.id)) continue; // don't clobber seeded fixtures
+    store.users.set(u.id, {
+      id: u.id,
+      email: u.email,
+      password_hash: u.password_hash,
+      name: u.name,
+      role: u.role,
+      phone: u.phone,
+      created_at: u.created_at ? new Date(u.created_at).toISOString() : new Date().toISOString(),
+    });
+    loaded += 1;
+  }
+  return loaded;
+}
+
+module.exports = { create, findById, findByEmail, loadAll };

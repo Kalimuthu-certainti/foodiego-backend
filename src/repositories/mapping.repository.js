@@ -10,6 +10,7 @@
  */
 
 const { store } = require("../config/database");
+const pool = require("../config/pgPool");
 const { makeMapping } = require("../models/mapping.model");
 
 /**
@@ -19,6 +20,29 @@ const { makeMapping } = require("../models/mapping.model");
 async function create(data) {
   const mapping = makeMapping(data);
   store.mappings.set(mapping.id, mapping);
+
+  if (pool) {
+    try {
+      await pool.query(
+        `INSERT INTO restaurant_user_mapping
+           (id, user_id, role, brand_id, restaurant_id, branch_id, status, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+         ON CONFLICT (id) DO NOTHING`,
+        [
+          mapping.id,
+          mapping.user_id,
+          mapping.role,
+          mapping.brand_id,
+          mapping.restaurant_id,
+          mapping.branch_id,
+          mapping.status,
+        ],
+      );
+    } catch (err) {
+      console.error("[mapping.repository] persist failed:", err.message);
+    }
+  }
+
   return mapping;
 }
 
@@ -53,7 +77,44 @@ async function update(id, patch) {
   if (!mapping) return null;
   const updated = { ...mapping, ...patch, id: mapping.id };
   store.mappings.set(id, updated);
+
+  if (pool) {
+    try {
+      await pool.query(`UPDATE restaurant_user_mapping SET status = $2 WHERE id = $1`, [
+        id,
+        updated.status,
+      ]);
+    } catch (err) {
+      console.error("[mapping.repository] persist update failed:", err.message);
+    }
+  }
+
   return updated;
+}
+
+/**
+ * Boot loader: hydrate the in-memory store with persisted staff mappings.
+ * @returns {Promise<number>} how many rows were loaded
+ */
+async function loadAll() {
+  if (!pool) return 0;
+  const { rows } = await pool.query(
+    `SELECT id, user_id, role, brand_id, restaurant_id, branch_id, status, created_at
+     FROM restaurant_user_mapping`,
+  );
+  for (const m of rows) {
+    store.mappings.set(m.id, {
+      id: m.id,
+      user_id: m.user_id,
+      role: m.role,
+      brand_id: m.brand_id,
+      restaurant_id: m.restaurant_id,
+      branch_id: m.branch_id,
+      status: m.status,
+      created_at: m.created_at ? new Date(m.created_at).toISOString() : new Date().toISOString(),
+    });
+  }
+  return rows.length;
 }
 
 /**
@@ -142,4 +203,5 @@ module.exports = {
   update,
   ownsScope,
   entityExists,
+  loadAll,
 };
