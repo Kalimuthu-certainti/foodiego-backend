@@ -32,17 +32,17 @@ const PASSWORD = "Password123!";
 
 const fixtures = {
   OWNER1: {
-    id: "11111111-1111-1111-1111-111111111111",
+    id: "7a3f9b2e-1c4d-4e8f-a5b6-2d7c8e9f0a1b",
     email: "owner1@foodiego.test",
     role: "BRAND_OWNER",
   },
   OWNER2: {
-    id: "22222222-2222-2222-2222-222222222222",
+    id: "8b4e0c3f-2d5e-5f9a-b6c7-3e8d9f0a1b2c",
     email: "owner2@foodiego.test",
     role: "BRAND_OWNER",
   },
   STAFF1: {
-    id: "33333333-3333-3333-3333-333333333333",
+    id: "9c5f1d4a-3e6f-6a0b-c7d8-4f9e0a1b2c3d",
     email: "staff1@foodiego.test",
     role: "RESTAURANT_MANAGER",
     phone: "9999999999",

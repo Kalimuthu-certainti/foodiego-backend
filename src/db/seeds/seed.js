@@ -19,29 +19,32 @@ const bcrypt = require("bcryptjs");
 const { makeUser } = require("../../models/user.model");
 const { makeBrand } = require("../../models/brand.model");
 const { makePayout } = require("../../models/payout.model");
+const { makeRestaurant } = require("../../models/restaurant.model");
+const { makeBranch } = require("../../models/branch.model");
+const { makeOrder } = require("../../models/order.model");
 const { ROLES, BRAND_STATUS, PAYOUT_STATUS } = require("../../config/constants");
 
 const DEMO_PASSWORD = "Password123!";
 
-const SPICE_GARDEN_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"; // owner1's brand
+const SPICE_GARDEN_ID = "2f8a4b6c-7d9e-4f1a-8b2c-3d5e6f7a8b9c"; // owner1's brand
 
 const FIXTURE_USERS = [
   {
-    id: "11111111-1111-1111-1111-111111111111",
+    id: "7a3f9b2e-1c4d-4e8f-a5b6-2d7c8e9f0a1b",
     email: "owner1@foodiego.test",
     name: "Owner One",
     role: ROLES.BRAND_OWNER,
     phone: null,
   },
   {
-    id: "22222222-2222-2222-2222-222222222222",
+    id: "8b4e0c3f-2d5e-5f9a-b6c7-3e8d9f0a1b2c",
     email: "owner2@foodiego.test",
     name: "Owner Two",
     role: ROLES.BRAND_OWNER,
     phone: null,
   },
   {
-    id: "33333333-3333-3333-3333-333333333333",
+    id: "9c5f1d4a-3e6f-6a0b-c7d8-4f9e0a1b2c3d",
     email: "staff1@foodiego.test",
     name: "Staff One",
     role: ROLES.RESTAURANT_MANAGER,
@@ -57,13 +60,13 @@ const FIXTURE_USERS = [
  */
 const FIXTURE_BRANDS = [
   {
-    id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-    owner_id: "11111111-1111-1111-1111-111111111111", // owner1
+    id: "2f8a4b6c-7d9e-4f1a-8b2c-3d5e6f7a8b9c",
+    owner_id: "7a3f9b2e-1c4d-4e8f-a5b6-2d7c8e9f0a1b", // owner1
     name: "Spice Garden",
   },
   {
-    id: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
-    owner_id: "22222222-2222-2222-2222-222222222222", // owner2
+    id: "3a9b5c7d-8e0f-4b2c-9d3e-4f6a7b8c9d0e",
+    owner_id: "8b4e0c3f-2d5e-5f9a-b6c7-3e8d9f0a1b2c", // owner2
     name: "Urban Bites",
   },
 ];
@@ -168,10 +171,331 @@ function seedReportsAndPayouts(store) {
   }
 }
 
+// ─── Fixture IDs for Spice Garden restaurants / branches / orders ─────────────
+
+const SPICE_GARDEN_RESTAURANT_ID = "4b0c6d8e-9f1a-4c3d-0e4f-5a6b7c8d9e0f";
+const BRANCH_MG_ROAD_ID = "5c1d7e9f-0a2b-4d4e-1f5a-6b7c8d9e0f1a";
+const BRANCH_KORAMANGALA_ID = "6d2e8f0a-1b3c-4e5f-2a6b-7c8d9e0f1a2b";
+
+const FIXTURE_RESTAURANTS = [
+  {
+    id: SPICE_GARDEN_RESTAURANT_ID,
+    brand_id: SPICE_GARDEN_ID,
+    name: "Spice Garden",
+    gst_no: "29AABCU9603R1ZX",
+    email: "info@spicegarden.in",
+    phone: "9876543210",
+  },
+];
+
+const MG_HOURS = {
+  mon: [{ open: "10:00", close: "22:00" }],
+  tue: [{ open: "10:00", close: "22:00" }],
+  wed: [{ open: "10:00", close: "22:00" }],
+  thu: [{ open: "10:00", close: "22:00" }],
+  fri: [{ open: "10:00", close: "23:00" }],
+  sat: [{ open: "09:00", close: "23:00" }],
+  sun: [{ open: "09:00", close: "22:00" }],
+};
+const KOR_HOURS = {
+  mon: [{ open: "11:00", close: "22:00" }],
+  tue: [{ open: "11:00", close: "22:00" }],
+  wed: [{ open: "11:00", close: "22:00" }],
+  thu: [{ open: "11:00", close: "22:00" }],
+  fri: [{ open: "11:00", close: "23:00" }],
+  sat: [{ open: "10:00", close: "23:00" }],
+  sun: [{ open: "10:00", close: "22:00" }],
+};
+
+const FIXTURE_BRANCHES = [
+  {
+    id: BRANCH_MG_ROAD_ID,
+    restaurant_id: SPICE_GARDEN_RESTAURANT_ID,
+    name: "Spice Garden - MG Road",
+    lat: 12.9716,
+    lng: 77.5946,
+    working_hours: MG_HOURS,
+    is_open: true,
+  },
+  {
+    id: BRANCH_KORAMANGALA_ID,
+    restaurant_id: SPICE_GARDEN_RESTAURANT_ID,
+    name: "Spice Garden - Koramangala",
+    lat: 12.9352,
+    lng: 77.6245,
+    working_hours: KOR_HOURS,
+    is_open: true,
+  },
+];
+
+const FIXTURE_ORDERS = [
+  // ── PLACED (can cancel) ───────────────────────────────────────────────────
+  {
+    id: "c9d0e1f2-a3b4-5678-cdef-789123456781",
+    order_number: "ORD-20260626-0001",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Arjun Sharma", customer_phone: "9845012345",
+    customer_address: "12, 5th Cross, Indiranagar, Bengaluru - 560038",
+    items: [
+      { name: "Butter Chicken", qty: 2, unit_price: 280, subtotal: 560 },
+      { name: "Garlic Naan", qty: 4, unit_price: 60, subtotal: 240 },
+      { name: "Raita", qty: 1, unit_price: 60, subtotal: 60 },
+    ],
+    total_amount: 920, platform_fee: 46, delivery_fee: 50, net_amount: 874,
+    payment_method: "UPI", payment_status: "paid", status: "placed",
+    placed_at: "2026-06-26T10:15:00.000Z",
+  },
+  {
+    id: "d0e1f2a3-b4c5-6789-defa-891234567892",
+    order_number: "ORD-20260626-0002",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_KORAMANGALA_ID,
+    customer_name: "Priya Nair", customer_phone: "9900123456",
+    customer_address: "45, 3rd Block, Koramangala, Bengaluru - 560034",
+    items: [
+      { name: "Paneer Tikka Masala", qty: 1, unit_price: 260, subtotal: 260 },
+      { name: "Dal Makhani", qty: 1, unit_price: 220, subtotal: 220 },
+      { name: "Butter Naan", qty: 3, unit_price: 55, subtotal: 165 },
+    ],
+    total_amount: 695, platform_fee: 35, delivery_fee: 40, net_amount: 660,
+    payment_method: "Cash on Delivery", payment_status: "pending", status: "placed",
+    placed_at: "2026-06-26T09:45:00.000Z",
+  },
+  {
+    id: "e1f2a3b4-c5d6-7890-efab-912345678903",
+    order_number: "ORD-20260626-0003",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Rahul Verma", customer_phone: "9712345678",
+    customer_address: "7, MG Road, Richmond Circle, Bengaluru - 560001",
+    items: [
+      { name: "Chicken Biryani", qty: 2, unit_price: 320, subtotal: 640 },
+      { name: "Mirchi Ka Salan", qty: 1, unit_price: 80, subtotal: 80 },
+      { name: "Cold Drink", qty: 2, unit_price: 60, subtotal: 120 },
+    ],
+    total_amount: 890, platform_fee: 45, delivery_fee: 60, net_amount: 845,
+    payment_method: "Credit Card", payment_status: "paid", status: "placed",
+    placed_at: "2026-06-26T08:30:00.000Z",
+  },
+  // ── CONFIRMED (can cancel) ────────────────────────────────────────────────
+  {
+    id: "f2a3b4c5-d6e7-8901-fabc-023456789014",
+    order_number: "ORD-20260626-0004",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Sunita Reddy", customer_phone: "9823456789",
+    customer_address: "23, Residency Road, Shivajinagar, Bengaluru - 560025",
+    items: [
+      { name: "Veg Biryani", qty: 2, unit_price: 260, subtotal: 520 },
+      { name: "Onion Raita", qty: 1, unit_price: 60, subtotal: 60 },
+      { name: "Gulab Jamun", qty: 2, unit_price: 80, subtotal: 160 },
+    ],
+    total_amount: 790, platform_fee: 40, delivery_fee: 50, net_amount: 750,
+    payment_method: "UPI", payment_status: "paid", status: "confirmed",
+    placed_at: "2026-06-26T07:00:00.000Z", confirmed_at: "2026-06-26T07:05:00.000Z",
+  },
+  {
+    id: "a3b4c5d6-e7f8-9012-abcd-134567890125",
+    order_number: "ORD-20260625-0005",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_KORAMANGALA_ID,
+    customer_name: "Kiran Patil", customer_phone: "9934567890",
+    customer_address: "88, 1st Main, JP Nagar, Bengaluru - 560078",
+    items: [
+      { name: "Mutton Rogan Josh", qty: 1, unit_price: 380, subtotal: 380 },
+      { name: "Tandoori Roti", qty: 4, unit_price: 40, subtotal: 160 },
+      { name: "Mango Lassi", qty: 2, unit_price: 80, subtotal: 160 },
+    ],
+    total_amount: 750, platform_fee: 38, delivery_fee: 60, net_amount: 712,
+    payment_method: "Debit Card", payment_status: "paid", status: "confirmed",
+    placed_at: "2026-06-25T19:30:00.000Z", confirmed_at: "2026-06-25T19:34:00.000Z",
+  },
+  // ── PREPARING (cannot cancel) ─────────────────────────────────────────────
+  {
+    id: "b4c5d6e7-f8a9-0123-bcde-245678901236",
+    order_number: "ORD-20260626-0006",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Deepa Krishnan", customer_phone: "9845678901",
+    customer_address: "15, 8th Cross, HSR Layout, Bengaluru - 560102",
+    items: [
+      { name: "Chole Bhature", qty: 2, unit_price: 180, subtotal: 360 },
+      { name: "Mango Lassi", qty: 2, unit_price: 100, subtotal: 200 },
+    ],
+    total_amount: 610, platform_fee: 31, delivery_fee: 50, net_amount: 579,
+    payment_method: "UPI", payment_status: "paid", status: "preparing",
+    placed_at: "2026-06-26T06:15:00.000Z", confirmed_at: "2026-06-26T06:18:00.000Z",
+    preparing_at: "2026-06-26T06:25:00.000Z",
+  },
+  {
+    id: "c5d6e7f8-a9b0-1234-cdef-356789012347",
+    order_number: "ORD-20260625-0007",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_KORAMANGALA_ID,
+    customer_name: "Amit Singh", customer_phone: "9967890123",
+    customer_address: "32, 12th Main, Bannerghatta Road, Bengaluru - 560076",
+    items: [
+      { name: "Chicken Tikka", qty: 1, unit_price: 340, subtotal: 340 },
+      { name: "Tandoori Naan", qty: 3, unit_price: 55, subtotal: 165 },
+      { name: "Jeera Rice", qty: 1, unit_price: 120, subtotal: 120 },
+    ],
+    total_amount: 675, platform_fee: 34, delivery_fee: 50, net_amount: 641,
+    payment_method: "UPI", payment_status: "paid", status: "preparing",
+    placed_at: "2026-06-25T13:20:00.000Z", confirmed_at: "2026-06-25T13:24:00.000Z",
+    preparing_at: "2026-06-25T13:30:00.000Z",
+  },
+  // ── OUT FOR DELIVERY ──────────────────────────────────────────────────────
+  {
+    id: "d6e7f8a9-b0c1-2345-defa-467890123458",
+    order_number: "ORD-20260626-0008",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Sneha Joshi", customer_phone: "9878901234",
+    customer_address: "5, 2nd Stage, Rajajinagar, Bengaluru - 560010",
+    items: [
+      { name: "Fish Curry", qty: 1, unit_price: 320, subtotal: 320 },
+      { name: "Steamed Rice", qty: 2, unit_price: 80, subtotal: 160 },
+      { name: "Papad", qty: 2, unit_price: 30, subtotal: 60 },
+    ],
+    total_amount: 590, platform_fee: 30, delivery_fee: 60, net_amount: 560,
+    payment_method: "UPI", payment_status: "paid", status: "out_for_delivery",
+    placed_at: "2026-06-26T05:00:00.000Z", confirmed_at: "2026-06-26T05:05:00.000Z",
+    preparing_at: "2026-06-26T05:15:00.000Z", out_for_delivery_at: "2026-06-26T05:45:00.000Z",
+  },
+  {
+    id: "e7f8a9b0-c1d2-3456-efab-578901234569",
+    order_number: "ORD-20260625-0009",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_KORAMANGALA_ID,
+    customer_name: "Vijay Kumar", customer_phone: "9812345678",
+    customer_address: "20, 4th Block, Jayanagar, Bengaluru - 560041",
+    items: [
+      { name: "Special Thali", qty: 2, unit_price: 350, subtotal: 700 },
+      { name: "Chaas", qty: 2, unit_price: 60, subtotal: 120 },
+    ],
+    total_amount: 870, platform_fee: 44, delivery_fee: 50, net_amount: 826,
+    payment_method: "Credit Card", payment_status: "paid", status: "out_for_delivery",
+    placed_at: "2026-06-25T12:00:00.000Z", confirmed_at: "2026-06-25T12:04:00.000Z",
+    preparing_at: "2026-06-25T12:15:00.000Z", out_for_delivery_at: "2026-06-25T12:50:00.000Z",
+  },
+  // ── DELIVERED ─────────────────────────────────────────────────────────────
+  {
+    id: "f8a9b0c1-d2e3-4567-fabc-689012345670",
+    order_number: "ORD-20260625-0010",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Meera Pillai", customer_phone: "9923456789",
+    customer_address: "11, Church Street, Brigade Road, Bengaluru - 560001",
+    items: [
+      { name: "Lamb Biryani", qty: 2, unit_price: 380, subtotal: 760 },
+      { name: "Mirchi Salan", qty: 1, unit_price: 80, subtotal: 80 },
+      { name: "Kheer", qty: 2, unit_price: 90, subtotal: 180 },
+    ],
+    total_amount: 1070, platform_fee: 54, delivery_fee: 60, net_amount: 1016,
+    payment_method: "UPI", payment_status: "paid", status: "delivered",
+    placed_at: "2026-06-25T11:00:00.000Z", confirmed_at: "2026-06-25T11:04:00.000Z",
+    preparing_at: "2026-06-25T11:12:00.000Z", out_for_delivery_at: "2026-06-25T11:45:00.000Z",
+    delivered_at: "2026-06-25T12:15:00.000Z",
+  },
+  {
+    id: "a9b0c1d2-e3f4-5678-abcd-790123456781",
+    order_number: "ORD-20260625-0011",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_KORAMANGALA_ID,
+    customer_name: "Arun Nath", customer_phone: "9834567890",
+    customer_address: "16, 7th Cross, Malleshwaram, Bengaluru - 560003",
+    items: [
+      { name: "Palak Paneer", qty: 1, unit_price: 240, subtotal: 240 },
+      { name: "Butter Naan", qty: 3, unit_price: 55, subtotal: 165 },
+      { name: "Mango Kulfi", qty: 2, unit_price: 90, subtotal: 180 },
+    ],
+    total_amount: 635, platform_fee: 32, delivery_fee: 50, net_amount: 603,
+    payment_method: "Debit Card", payment_status: "paid", status: "delivered",
+    placed_at: "2026-06-25T09:30:00.000Z", confirmed_at: "2026-06-25T09:35:00.000Z",
+    preparing_at: "2026-06-25T09:45:00.000Z", out_for_delivery_at: "2026-06-25T10:20:00.000Z",
+    delivered_at: "2026-06-25T10:55:00.000Z",
+  },
+  {
+    id: "b0c1d2e3-f4a5-6789-bcde-801234567892",
+    order_number: "ORD-20260624-0012",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Divya Iyer", customer_phone: "9956789012",
+    customer_address: "3, Lake View Road, Ulsoor, Bengaluru - 560008",
+    items: [
+      { name: "Chicken 65", qty: 1, unit_price: 300, subtotal: 300 },
+      { name: "Chapati", qty: 4, unit_price: 30, subtotal: 120 },
+      { name: "Dal Tadka", qty: 1, unit_price: 160, subtotal: 160 },
+    ],
+    total_amount: 630, platform_fee: 32, delivery_fee: 50, net_amount: 598,
+    payment_method: "UPI", payment_status: "paid", status: "delivered",
+    placed_at: "2026-06-24T18:00:00.000Z", confirmed_at: "2026-06-24T18:05:00.000Z",
+    preparing_at: "2026-06-24T18:15:00.000Z", out_for_delivery_at: "2026-06-24T18:50:00.000Z",
+    delivered_at: "2026-06-24T19:25:00.000Z",
+  },
+  {
+    id: "c1d2e3f4-a5b6-7890-cdef-912345678903",
+    order_number: "ORD-20260624-0013",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_KORAMANGALA_ID,
+    customer_name: "Rohit Gupta", customer_phone: "9890123456",
+    customer_address: "27, 1st Cross, BTM Layout, Bengaluru - 560076",
+    items: [
+      { name: "Chicken Burger", qty: 2, unit_price: 180, subtotal: 360 },
+      { name: "French Fries", qty: 2, unit_price: 120, subtotal: 240 },
+      { name: "Cold Coffee", qty: 2, unit_price: 120, subtotal: 240 },
+    ],
+    total_amount: 890, platform_fee: 45, delivery_fee: 40, net_amount: 845,
+    payment_method: "UPI", payment_status: "paid", status: "delivered",
+    placed_at: "2026-06-24T14:00:00.000Z", confirmed_at: "2026-06-24T14:05:00.000Z",
+    preparing_at: "2026-06-24T14:15:00.000Z", out_for_delivery_at: "2026-06-24T14:50:00.000Z",
+    delivered_at: "2026-06-24T15:25:00.000Z",
+  },
+  // ── CANCELLED ─────────────────────────────────────────────────────────────
+  {
+    id: "d2e3f4a5-b6c7-8901-defa-023456789014",
+    order_number: "ORD-20260624-0014",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_MG_ROAD_ID,
+    customer_name: "Lakshmi Nair", customer_phone: "9867890123",
+    customer_address: "8, Frazer Town, Bengaluru - 560005",
+    items: [
+      { name: "Chicken Biryani", qty: 3, unit_price: 320, subtotal: 960 },
+      { name: "Raita", qty: 2, unit_price: 60, subtotal: 120 },
+    ],
+    total_amount: 1130, platform_fee: 57, delivery_fee: 60, net_amount: 1073,
+    payment_method: "UPI", payment_status: "paid", status: "cancelled",
+    cancel_reason: "Item out of stock", cancelled_by: "brand_owner",
+    placed_at: "2026-06-24T11:00:00.000Z", confirmed_at: "2026-06-24T11:03:00.000Z",
+    cancelled_at: "2026-06-24T11:10:00.000Z",
+  },
+  {
+    id: "e3f4a5b6-c7d8-9012-efab-134567890125",
+    order_number: "ORD-20260623-0015",
+    brand_id: SPICE_GARDEN_ID, branch_id: BRANCH_KORAMANGALA_ID,
+    customer_name: "Sanjay Menon", customer_phone: "9901234567",
+    customer_address: "42, 6th Main, Sadashivanagar, Bengaluru - 560080",
+    items: [
+      { name: "Prawn Masala", qty: 1, unit_price: 420, subtotal: 420 },
+      { name: "Chapati", qty: 3, unit_price: 30, subtotal: 90 },
+    ],
+    total_amount: 560, platform_fee: 28, delivery_fee: 50, net_amount: 532,
+    payment_method: "Cash on Delivery", payment_status: "pending", status: "cancelled",
+    cancel_reason: "Customer requested cancellation", cancelled_by: "brand_owner",
+    placed_at: "2026-06-23T16:00:00.000Z", confirmed_at: "2026-06-23T16:04:00.000Z",
+    cancelled_at: "2026-06-23T16:15:00.000Z",
+  },
+];
+
+/**
+ * Seed the demo restaurant, branches, and orders for Spice Garden.
+ * Kept SEPARATE from seedStore/seedBrands so integration tests are unaffected.
+ * @param {{ restaurants: Map, branches: Map, orders: Map }} store
+ */
+function seedRestaurantsAndBranchesAndOrders(store) {
+  for (const r of FIXTURE_RESTAURANTS) {
+    store.restaurants.set(r.id, makeRestaurant(r));
+  }
+  for (const b of FIXTURE_BRANCHES) {
+    store.branches.set(b.id, makeBranch(b));
+  }
+  for (const o of FIXTURE_ORDERS) {
+    store.orders.set(o.id, makeOrder(o));
+  }
+}
+
 module.exports = {
   seedStore,
   seedBrands,
   seedReportsAndPayouts,
+  seedRestaurantsAndBranchesAndOrders,
   DEMO_PASSWORD,
   FIXTURE_USERS,
   FIXTURE_BRANDS,

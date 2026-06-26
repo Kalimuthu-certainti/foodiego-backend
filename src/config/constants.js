@@ -45,6 +45,21 @@ const AUDIT_ACTION = Object.freeze({
   SCOPE_DENIED: "SCOPE_DENIED",
 });
 
+const ORDER_STATUS = Object.freeze({
+  PLACED: "placed",
+  CONFIRMED: "confirmed",
+  PREPARING: "preparing",
+  OUT_FOR_DELIVERY: "out_for_delivery",
+  DELIVERED: "delivered",
+  CANCELLED: "cancelled",
+});
+
+const PAYMENT_STATUS = Object.freeze({
+  PENDING: "pending",
+  PAID: "paid",
+  FAILED: "failed",
+});
+
 const ENTITY = Object.freeze({
   BRAND: "brands",
   RESTAURANT: "restaurants",
@@ -52,6 +67,7 @@ const ENTITY = Object.freeze({
   MAPPING: "restaurant_user_mapping",
   MENU_CHANGE_REQUEST: "menu_change_requests",
   PAYOUT: "payouts",
+  ORDER: "orders",
 });
 
 module.exports = {
@@ -60,6 +76,8 @@ module.exports = {
   MAPPING_STATUS,
   MENU_REQUEST_STATUS,
   PAYOUT_STATUS,
+  ORDER_STATUS,
+  PAYMENT_STATUS,
   AUDIT_ACTION,
   ENTITY,
 };

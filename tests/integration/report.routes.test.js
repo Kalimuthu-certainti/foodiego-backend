@@ -14,7 +14,7 @@ const { app, resetStore, login, fixtures } = require("./helpers");
 const brandRepository = require("../../src/repositories/brand.repository");
 const payoutRepository = require("../../src/repositories/payout.repository");
 
-const BRAND_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const BRAND_ID = "2f8a4b6c-7d9e-4f1a-8b2c-3d5e6f7a8b9c";
 
 /** Seed a brand owned by OWNER1 + one payout for it. */
 async function seedBrandWithPayout() {

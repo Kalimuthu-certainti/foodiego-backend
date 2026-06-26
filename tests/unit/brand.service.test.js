@@ -16,7 +16,7 @@ const audit = require("../../src/utils/audit");
 const { config } = require("../../src/config");
 const { BRAND_STATUS, AUDIT_ACTION, ENTITY } = require("../../src/config/constants");
 
-const OWNER = "11111111-1111-1111-1111-111111111111";
+const OWNER = "7a3f9b2e-1c4d-4e8f-a5b6-2d7c8e9f0a1b";
 
 describe("brandService.create (auto-approve phase)", () => {
   beforeEach(() => {
