@@ -4,7 +4,7 @@ const app = require("./app");
 const { config } = require("./config");
 const logger = require("./utils/logger");
 const { store } = require("./config/database");
-const { seedStore, seedBrands } = require("./db/seeds/seed");
+const { seedStore, seedBrands, seedReportsAndPayouts, seedRestaurantsAndBranchesAndOrders, seedReviews } = require("./db/seeds/seed");
 const restaurantRepo = require("./repositories/restaurant.repository");
 const userRepo = require("./repositories/user.repository");
 const mappingRepo = require("./repositories/mapping.repository");
@@ -18,6 +18,9 @@ const mappingRepo = require("./repositories/mapping.repository");
 if (config.seedOnBoot) {
   seedStore(store);
   seedBrands(store);
+  seedReportsAndPayouts(store);
+  seedRestaurantsAndBranchesAndOrders(store);
+  seedReviews(store);
   logger.info("In-memory store seeded with demo fixtures");
 }
 

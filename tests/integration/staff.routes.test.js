@@ -18,7 +18,7 @@ const brandRepo = require("../../src/repositories/brand.repository");
 const audit = require("../../src/utils/audit");
 const { MAPPING_STATUS, AUDIT_ACTION, ENTITY } = require("../../src/config/constants");
 
-const OWNER1_BRAND_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const OWNER1_BRAND_ID = "2f8a4b6c-7d9e-4f1a-8b2c-3d5e6f7a8b9c";
 
 async function asOwner1() {
   const res = await login(request, fixtures.OWNER1.email, fixtures.PASSWORD);

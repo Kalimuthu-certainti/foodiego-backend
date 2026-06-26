@@ -24,6 +24,8 @@ const store = {
   mappings: new Map(),
   menuChangeRequests: new Map(),
   payouts: new Map(),
+  orders: new Map(),
+  reviews: new Map(),
   reports: [],
   auditLogs: [],
 };
@@ -39,6 +41,8 @@ function reset() {
   store.mappings.clear();
   store.menuChangeRequests.clear();
   store.payouts.clear();
+  store.orders.clear();
+  store.reviews.clear();
   store.reports.length = 0;
   store.auditLogs.length = 0;
 }
