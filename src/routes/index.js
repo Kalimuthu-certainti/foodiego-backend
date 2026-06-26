@@ -47,6 +47,7 @@ const staffRoutes = require("./staff.routes");
 const menuRoutes = require("./menu.routes");
 const reportRoutes = require("./report.routes");
 const orderRoutes = require("./order.routes");
+const reviewRoutes = require("./review.routes");
 // Bulk-upload module (Postgres-backed; the rest of the app is in-memory). Its
 // routes self-authenticate with the same JWT, and mount under /api/bulk-upload.
 const bulkUploadRoutes = require("../modules/bulkUpload/routes/bulkUploadRoutes");
@@ -61,6 +62,7 @@ router.use(staffRoutes);
 router.use(menuRoutes);
 router.use(reportRoutes);
 router.use(orderRoutes);
+router.use(reviewRoutes);
 router.use("/bulk-upload", bulkUploadRoutes);
 
 module.exports = router;

@@ -60,6 +60,12 @@ const PAYMENT_STATUS = Object.freeze({
   FAILED: "failed",
 });
 
+const REVIEW_STATUS = Object.freeze({
+  APPROVED: "approved",
+  HIDDEN: "hidden",
+  FLAGGED: "flagged",
+});
+
 const ENTITY = Object.freeze({
   BRAND: "brands",
   RESTAURANT: "restaurants",
@@ -78,6 +84,7 @@ module.exports = {
   PAYOUT_STATUS,
   ORDER_STATUS,
   PAYMENT_STATUS,
+  REVIEW_STATUS,
   AUDIT_ACTION,
   ENTITY,
 };

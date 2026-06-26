@@ -22,6 +22,7 @@ const { makePayout } = require("../../models/payout.model");
 const { makeRestaurant } = require("../../models/restaurant.model");
 const { makeBranch } = require("../../models/branch.model");
 const { makeOrder } = require("../../models/order.model");
+const { makeReview } = require("../../models/review.model");
 const { ROLES, BRAND_STATUS, PAYOUT_STATUS } = require("../../config/constants");
 
 const DEMO_PASSWORD = "Password123!";
@@ -491,11 +492,184 @@ function seedRestaurantsAndBranchesAndOrders(store) {
   }
 }
 
+/** Demo reviews for Spice Garden — varied ratings, statuses, some with replies. */
+const FIXTURE_REVIEWS = [
+  {
+    id: "rev1a2b3c-d4e5-6789-abc1-234567890001",
+    branch_id: BRANCH_MG_ROAD_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Meera Pillai",
+    customer_phone: "9923456789",
+    rating: 5,
+    review_text: "Absolutely amazing food! The Lamb Biryani was perfectly cooked and full of flavour. Delivery was on time and everything was hot. Will definitely order again!",
+    status: "approved",
+    owner_reply: "Thank you so much, Meera! We are thrilled you loved the Lamb Biryani. Looking forward to serving you again soon!",
+    replied_at: "2026-06-25T14:00:00.000Z",
+    created_at: "2026-06-25T13:00:00.000Z",
+  },
+  {
+    id: "rev2b3c4d-e5f6-7890-bcd2-345678901002",
+    branch_id: BRANCH_KORAMANGALA_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Arun Nath",
+    customer_phone: "9834567890",
+    rating: 4,
+    review_text: "Great food overall! The Palak Paneer was really good. Delivery was a bit late but the food quality made up for it. The Mango Kulfi was a perfect dessert.",
+    status: "approved",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-25T11:30:00.000Z",
+  },
+  {
+    id: "rev3c4d5e-f6a7-8901-cde3-456789012003",
+    branch_id: BRANCH_MG_ROAD_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Divya Iyer",
+    customer_phone: "9956789012",
+    rating: 5,
+    review_text: "The Chicken 65 was phenomenal! Crispy, spicy, and perfectly seasoned. The Dal Tadka paired beautifully with the chapatis. Outstanding experience from start to finish.",
+    status: "approved",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-24T19:00:00.000Z",
+  },
+  {
+    id: "rev4d5e6f-a7b8-9012-def4-567890123004",
+    branch_id: BRANCH_KORAMANGALA_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Rohit Gupta",
+    customer_phone: "9890123456",
+    rating: 3,
+    review_text: "The burgers were decent but the fries were a bit soggy. Cold coffee was good though. Expected better quality for the price. Packaging could be improved.",
+    status: "flagged",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-24T15:30:00.000Z",
+  },
+  {
+    id: "rev5e6f7a-b8c9-0123-ef05-678901234005",
+    branch_id: BRANCH_MG_ROAD_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Preethi Chandran",
+    customer_phone: "9811234567",
+    rating: 2,
+    review_text: "Very disappointed. The food arrived cold and the Biryani was not properly cooked. The rice was mushy. I've had better from this restaurant before. Not ordering again.",
+    status: "hidden",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-23T20:00:00.000Z",
+  },
+  {
+    id: "rev6f7a8b-c9d0-1234-f067-789012345006",
+    branch_id: BRANCH_KORAMANGALA_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Sanjay Menon",
+    customer_phone: "9901234567",
+    rating: 1,
+    review_text: "Terrible experience. The food was completely different from what was pictured. Raised a complaint with the platform. Highly disappointed.",
+    status: "flagged",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-23T17:00:00.000Z",
+  },
+  {
+    id: "rev7a1b2c-d3e4-5678-abc7-890123456007",
+    branch_id: BRANCH_MG_ROAD_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Kavya Reddy",
+    customer_phone: "9876543211",
+    rating: 5,
+    review_text: "Ordered the Butter Chicken and Garlic Naan combo — absolutely divine! The sauce was rich and creamy, naan was soft and fresh. Super fast delivery too. 5 stars!",
+    status: "approved",
+    owner_reply: "Thank you Kavya! We're so glad you enjoyed the Butter Chicken combo. That's our chef's pride! Hope to see you again soon.",
+    replied_at: "2026-06-22T16:00:00.000Z",
+    created_at: "2026-06-22T15:00:00.000Z",
+  },
+  {
+    id: "rev8b2c3d-e4f5-6789-bcd8-901234567008",
+    branch_id: BRANCH_KORAMANGALA_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Vikram Nair",
+    customer_phone: "9845123456",
+    rating: 4,
+    review_text: "Really enjoyed the Special Thali. Great value for money with so many items. The quality was consistent throughout. Would love if you added more dessert options.",
+    status: "approved",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-22T10:00:00.000Z",
+  },
+  {
+    id: "rev9c3d4e-f5a6-7890-cde9-012345678009",
+    branch_id: BRANCH_MG_ROAD_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Nisha Patel",
+    customer_phone: "9867891234",
+    rating: 4,
+    review_text: "Good food but the delivery took longer than expected. The Fish Curry was fresh and tasty. Packaging was neat and secure. Overall a satisfying meal.",
+    status: "approved",
+    owner_reply: "Hi Nisha, we apologize for the delay. We're working on faster delivery. Thank you for the kind words about the Fish Curry!",
+    replied_at: "2026-06-21T14:00:00.000Z",
+    created_at: "2026-06-21T12:00:00.000Z",
+  },
+  {
+    id: "rev10d4e5-f6a7-8901-def0-123456789010",
+    branch_id: BRANCH_KORAMANGALA_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Suresh Kumar",
+    customer_phone: "9912345678",
+    rating: 5,
+    review_text: "Best Indian food delivery in Bangalore! The Mutton Rogan Josh was absolutely perfect. Tender meat, authentic spices. The Mango Lassi complemented it beautifully. 10/10!",
+    status: "approved",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-20T18:00:00.000Z",
+  },
+  {
+    id: "rev11e5f6-a7b8-9012-ef01-234567890011",
+    branch_id: BRANCH_MG_ROAD_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Deepa Krishnan",
+    customer_phone: "9845678901",
+    rating: 3,
+    review_text: "The Chole Bhature was okay but not as good as I expected. The bhature were a bit oily. Mango Lassi was refreshing. Decent meal overall but room for improvement.",
+    status: "approved",
+    owner_reply: "Thank you for the honest feedback, Deepa! We've noted your concerns and our team will work on improving the recipe. Hope you give us another chance!",
+    replied_at: "2026-06-20T12:00:00.000Z",
+    created_at: "2026-06-20T10:00:00.000Z",
+  },
+  {
+    id: "rev12f6a7-b8c9-0123-f012-345678901012",
+    branch_id: BRANCH_KORAMANGALA_ID,
+    brand_id: SPICE_GARDEN_ID,
+    customer_name: "Ananya Singh",
+    customer_phone: "9934561234",
+    rating: 5,
+    review_text: "I order from Spice Garden almost every week and the quality never disappoints! The Chicken Tikka is always perfectly marinated. Love it!",
+    status: "approved",
+    owner_reply: null,
+    replied_at: null,
+    created_at: "2026-06-19T14:00:00.000Z",
+  },
+];
+
+/**
+ * Seed demo reviews for Spice Garden.
+ * Kept SEPARATE so integration tests are unaffected — boot-only.
+ * @param {{ reviews: Map }} store
+ */
+function seedReviews(store) {
+  store.reviews.clear();
+  for (const r of FIXTURE_REVIEWS) {
+    store.reviews.set(r.id, makeReview(r));
+  }
+}
+
 module.exports = {
   seedStore,
   seedBrands,
   seedReportsAndPayouts,
   seedRestaurantsAndBranchesAndOrders,
+  seedReviews,
   DEMO_PASSWORD,
   FIXTURE_USERS,
   FIXTURE_BRANDS,
