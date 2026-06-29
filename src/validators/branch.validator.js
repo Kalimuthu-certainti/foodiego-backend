@@ -37,4 +37,11 @@ const listBranchesQuery = Joi.object({
   restaurantId: Joi.string().required(),
 });
 
-module.exports = { createBranch, listBranchesQuery };
+const updateBranch = Joi.object({
+  name: Joi.string().trim().min(1),
+  lat: Joi.number().min(-90).max(90),
+  lng: Joi.number().min(-180).max(180),
+  workingHours,
+}).min(1);
+
+module.exports = { createBranch, listBranchesQuery, updateBranch };

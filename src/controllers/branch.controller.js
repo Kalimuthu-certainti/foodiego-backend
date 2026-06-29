@@ -42,4 +42,19 @@ async function list(req, res, next) {
   }
 }
 
-module.exports = { create, list };
+/**
+ * @route   PATCH /api/branches/:id
+ * @desc    Update a branch's name, location, or working hours
+ * @access  Private: BRAND_OWNER + scopeCheck(branchId)
+ */
+async function update(req, res, next) {
+  try {
+    const branch = await branchService.update(req.user.id, req.params.id, req.body);
+    if (!branch) return res.status(404).json({ message: 'Branch not found' });
+    return res.status(200).json(branch);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { create, list, update };
