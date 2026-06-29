@@ -27,7 +27,6 @@ const INSERT_QUERY = `
     spice_level      = EXCLUDED.spice_level,
     calories         = EXCLUDED.calories,
     allergens        = EXCLUDED.allergens,
-    status           = EXCLUDED.status,
     available_from   = EXCLUDED.available_from,
     available_to     = EXCLUDED.available_to,
     packaging_charge = EXCLUDED.packaging_charge,
@@ -42,7 +41,7 @@ const buildValues = (row, userId, restaurantId) => [
   userId, restaurantId,
   row.item_name, row.category, row.sub_category, row.description,
   row.price, row.discount_price, row.tax_percentage, row.image_url, row.food_type,
-  row.spice_level, row.calories, row.allergens, row.status,
+  row.spice_level, row.calories, row.allergens, 'pending_approval',
   row.available_from, row.available_to, row.packaging_charge, row.display_order,
   row.is_featured, row.is_bestseller, row.is_customizable,
 ];

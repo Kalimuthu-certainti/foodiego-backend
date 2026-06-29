@@ -19,7 +19,7 @@ const jwtVerify = require("../middlewares/jwtVerify");
 const roleCheck = require("../middlewares/roleCheck");
 const scopeCheck = require("../middlewares/scopeCheck");
 const validate = require("../middlewares/validate");
-const { createBranch, listBranchesQuery } = require("../validators/branch.validator");
+const { createBranch, listBranchesQuery, updateBranch } = require("../validators/branch.validator");
 const { ROLES } = require("../config/constants");
 
 const router = express.Router();
@@ -28,6 +28,7 @@ const router = express.Router();
  * ROUTE MAP — branch router (mounted under /api)
  *   POST /api/branches                 — Create a branch — jwtVerify, roleCheck(BRAND_OWNER), validate(body), scopeCheck(restaurantId)
  *   GET  /api/branches?restaurantId=   — List branches by restaurant — jwtVerify, roleCheck(BRAND_OWNER), validate(query), scopeCheck(restaurantId)
+ *   PATCH /api/branches/:id            — Update a branch — jwtVerify, roleCheck(BRAND_OWNER), validate(body), scopeCheck(branchId)
  */
 
 router.post(
@@ -46,6 +47,15 @@ router.get(
   validate(listBranchesQuery, "query"),
   scopeCheck("restaurantId"),
   branchController.list
+);
+
+router.patch(
+  "/branches/:id",
+  jwtVerify,
+  roleCheck([ROLES.BRAND_OWNER]),
+  validate(updateBranch),
+  scopeCheck("branchId"),
+  branchController.update
 );
 
 module.exports = router;

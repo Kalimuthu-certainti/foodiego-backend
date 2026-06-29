@@ -54,4 +54,28 @@ async function listByRestaurant(restaurantId) {
   return branchRepo.findByRestaurant(restaurantId);
 }
 
-module.exports = { create, listByRestaurant };
+/**
+ * Update a branch's mutable fields.
+ * @param {string} actorId
+ * @param {string} id
+ * @param {object} input  { name?, lat?, lng?, workingHours? }
+ * @returns {Promise<object>}
+ */
+async function update(actorId, id, { name, lat, lng, workingHours }) {
+  const branch = await branchRepo.findById(id);
+  if (!branch) throw new NotFoundError("Branch not found");
+
+  const patch = {};
+  if (name !== undefined) patch.name = name;
+  if (lat !== undefined) patch.lat = lat;
+  if (lng !== undefined) patch.lng = lng;
+  if (workingHours !== undefined) patch.working_hours = workingHours;
+
+  const updated = await branchRepo.update(id, patch);
+
+  audit.log(actorId, AUDIT_ACTION.UPDATE, ENTITY.BRANCH, id, patch);
+
+  return updated;
+}
+
+module.exports = { create, listByRestaurant, update };

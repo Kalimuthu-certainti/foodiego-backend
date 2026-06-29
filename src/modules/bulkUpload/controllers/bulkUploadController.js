@@ -157,10 +157,10 @@ const getRestaurants = async (req, res, next) => {
 const getMenuItems = async (req, res, next) => {
   try {
     const pool = require('../config/database');
-    const { restaurant_id, search } = req.query;
+    const { restaurant_id, search, status } = req.query;
     const userId = req.user.id;
 
-    // Always get the restaurant total (ignoring search)
+    // Always get the restaurant total (ignoring search/status filters)
     const totalParams = [userId];
     let totalQuery = `SELECT COUNT(*) AS total, COUNT(DISTINCT category) AS categories FROM menu_items WHERE user_id = $1`;
     if (restaurant_id) {
@@ -171,12 +171,16 @@ const getMenuItems = async (req, res, next) => {
     const totalItems = parseInt(totalRows[0].total);
     const totalCategories = parseInt(totalRows[0].categories);
 
-    // Filtered items (with search)
+    // Filtered items (with search + status)
     let query = `SELECT * FROM menu_items WHERE user_id = $1`;
     const params = [userId];
     if (restaurant_id) {
       params.push(restaurant_id);
       query += ` AND restaurant_id = $${params.length}`;
+    }
+    if (status) {
+      params.push(status);
+      query += ` AND status = $${params.length}`;
     }
     if (search) {
       params.push(`%${search}%`);

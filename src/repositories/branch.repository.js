@@ -38,4 +38,17 @@ async function findByRestaurant(restaurantId) {
   return result;
 }
 
-module.exports = { create, findById, findByRestaurant };
+/**
+ * @param {string} id
+ * @param {object} patch
+ * @returns {Promise<object|null>}
+ */
+async function update(id, patch) {
+  const branch = store.branches.get(id);
+  if (!branch) return null;
+  const updated = { ...branch, ...patch, updated_at: new Date().toISOString() };
+  store.branches.set(id, updated);
+  return updated;
+}
+
+module.exports = { create, findById, findByRestaurant, update };
